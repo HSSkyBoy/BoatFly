@@ -1,0 +1,9 @@
+{
+  "category.boatfly.main": "Boat Fly",
+  "key.boatfly.toggle_fly": "切換船隻飛行",
+  "key.boatfly.increase_speed": "增加船隻速度",
+  "key.boatfly.decrease_speed": "降低船隻速度",
+  "message.boatfly.fly_enabled": "船隻飛行已開啟。速度設定為 %s 格/秒。",
+  "message.boatfly.fly_disabled": "船隻飛行已關閉。",
+  "message.boatfly.speed_changed": "船隻速度設定為 %s 格/秒。"
+}
