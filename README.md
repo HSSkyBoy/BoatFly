@@ -22,7 +22,7 @@
 ### ⚙️ 操作与设定
 
 所有按键都可以在 Minecraft 的「按键绑定」中更改。
-<img width="1436" height="341" alt="QQ_1754645031157" src="https://github.com/user-attachments/assets/ba0aea08-9eeb-4bcf-8e92-edd39672bf36" />
+![keystroke](https://cdn.modrinth.com/data/cached_images/17d5edfa61c9327fbbe3bb506d2477ef1cac586e_0.webp)
 
     **切换船只飞行*\: `B` (预设)
 
@@ -34,8 +34,7 @@
 
 
 #### 指令 (实验性)
-<img width="460" height="124" alt="image" src="https://github.com/user-attachments/assets/2ac13dc1-3cf1-4921-9adb-8f462d697807" />
-
+![Commad](https://cdn.modrinth.com/data/cached_images/ca76eabaae847d94fa334b191766db5cd6c40ff9_0.webp)
 
 * `/boatspeed <数值>`
 
@@ -46,7 +45,7 @@
 #### 更改可视化
 
 当你启用飞行或调整速度时，聊天栏会显示相应的提示讯息。
-<img width="1347" height="429" alt="image" src="https://github.com/user-attachments/assets/dee689d5-1320-4deb-b74b-8ce47310dbaf" />
+![Text](https://cdn.modrinth.com/data/cached_images/5aea15feb44b849b20f60eec5373b07cf07bbc61_0.webp)
 
 ### 🛠️ 安装说明
 
