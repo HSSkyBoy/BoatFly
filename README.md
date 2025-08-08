@@ -1,19 +1,77 @@
-This mod will allow you to fly while in a boat and move much quicker in one, but make sure not to use it on any servers like Hypixel, since you will be banned instantly. The default button to toggle the boat flight feature is B and the default button to increase boat speed is I and the decrease is o but it can be changed in the keybinds menu. Messages will appear according to your speed every time you change it. YOU CANNOT HAVE BOTH ON THE SAME TIME because you fly way too fast and far away quickly so IF YOU TOGGLE ONE ON WHILE ANOTHER IS ALREADY ON THE OTHER WILL TOGGLE OFF.  The default boat speed is 8 blocks per second. This is a reference, but the flight reset will also change it to this.
+### 簡述：
+此模组将允许你在船上飞行，并且在船中移动得更快，但请确保不要在任何非无政府服务器（如 [Hypixel](hypixel.net)）中使用，因为这可能导致你立即被封禁。
+切换船飞行功能的默认按键是 B，增加船速的默认按键是 I，减少船速的默认按键是 O，但这些可以在键位设置菜单中更改。每次更改速度时，都会显示相应的提示信息。
+你不能同时开启这两种功能，因为你飞行得太快太远。如果你在另一种功能已经开启的情况下切换，另一种功能将会关闭。默认船速为每秒 8 个方块。这只是一个参考值，但飞行重置也会将其调整为此值。
 
-If you have any questions or suggestions please leave them in the comments.
+此项目复刻于[EricGilerson](https://github.com/EricGilerson/BoatFly), 致力于保持在1.21以上版本的Fabric端的可使用性
 
-if you want to increase your speed with a command now you can. Use /boatspeed <value> to set your speed manually. Still even with this command don't try and go too high. Currently, this feature is only for 1.20.4  - the 4.1.0+ version - but if you need it for an earlier version let me know at the website or in the comment section!
-
-Any version under 5.0.0 uses the old multiplier system which is hard to understand, but versions 5.0.0 allow you to choose the speed of the boat in Blocks per second(velocity)
-
-If you encounter any problems head over to seniortechguides.com and fill out the form and we will be sure to reach out promptly
-
- 
-
- 
-
-This mod is available for all versions 1.17-1.21, click VIEW ALL on the files page to see every version
+-----
 
 
+# Boat Fly (船隻飛行)
 
-visit [https://www.curseforge.com/minecraft/mc-mods/boat-fly](url)
+
+一个简单的客户端 Fabric 模组，它允许您驾驶船隻在空中飞行，并完全自定义其速度。
+
+
+### 🚤 功能特性
+
+
+
+   * **飛行開關**: 透過一個按鍵輕鬆切換普通船隻模式與飛行模式。
+
+   * **速度控制**: 在飛行中隨時增加或降低您的飛行速度。
+
+   * **垂直飛行**: 使用跳躍鍵來控制上升。放開後，船隻會受重力影響下降。
+
+   * **純客戶端**: 本模組完全運行於客戶端，伺服器無需安裝。（實際效果因伺服器的反作弊插件而異）。
+
+
+
+### ⚙️ 操作與設定
+
+
+
+所有按鍵都可以在配置檔案中修改。
+
+
+
+    **切換船隻飛行*\: `B` (預設)
+
+    **增加速度*\: `I` (預設)
+
+    **降低速度*\: `O` (預設)
+
+    **升空*\: `空白鍵` (跳躍鍵)
+
+
+
+#### 指令 (實驗性)
+
+
+
+* `/boatspeed <數值>`
+
+* 設定船隻的飛行速度。
+
+* 例如: `/boatspeed 20.5` 會將速度設定為 20.5 格/秒。
+
+
+
+### 🛠️ 安裝說明
+
+
+
+1.  確保您已經安裝了 [Fabric Loader](https://fabricmc.net/use/installer/)。
+
+2.  下載 [Fabric API](https://www.curseforge.com/minecraft/mc-mods/fabric-api)。
+
+3.  下載本模組的最新版本。
+
+4.  將 Fabric API 的 `.jar` 檔案與本模組的 `.jar` 檔案一起放入您的 `.minecraft/mods` 資料夾中。
+
+5.  啟動遊戲！
+
+6. 進入世界並坐到船上。
+
+-----
