@@ -1,11 +1,15 @@
+# [English introduction](README-EN.md)
+
 此Fabric模组项目是**基于** [EricGilerson 的 BoatFly](https://github.com/EricGilerson/BoatFly) 进行了**代码重构**而非单纯构建，致力于保持在 Minecraft 1.21 及以上版本的可用性。
 
 -----
 # Boat Fly (船只飞行)
 
+
+
 一个简单的客户端 Fabric 模组，让你能驾驶船只在空中自由飞行，并完全自定义其速度。
 
-此模组可能被视为对游戏机制的修改，在**非无作弊 (Non-Anarchy)** 伺服器（例如：[Hypixel](us.hypixlel.net)）上使用可能会导致**账户封禁**。请务必在了解风险的前提下使用，作者不会为
+此模组可能被视为对游戏机制的修改，在**非无作弊 (Non-Anarchy)** 伺服器（例如：[Hypixel](us.hypixlel.net)）上使用可能会导致**账户封禁**。请务必在了解风险的前提下使用。
 
 
 ### 🚤 功能特性
