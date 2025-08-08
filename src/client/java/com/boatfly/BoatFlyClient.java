@@ -1,153 +1,148 @@
 package com.boatfly;
+
 import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.Entity;
-import java.lang.Math;
-import net.minecraft.server.command.CommandManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.glfw.GLFW;
-
-
-import static net.minecraft.server.command.CommandManager.argument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BoatFlyClient implements ClientModInitializer {
-	public static KeyBinding BoatFlight;
-	public static boolean BoatFlyOn;
-	public static KeyBinding BoatSpeedInc;
-	public static KeyBinding BoatSpeedDec;
-	public static double BoatSpeed = 1;
-	public static double boatVelocity = 8;
-	private static double lastPlayerX;
-	private static double lastPlayerZ;
-	private static long lastCheckTime;
-	private static double playerSpeed;
-	private static Vec3d boat;
-	private static final MinecraftClient client = MinecraftClient.getInstance();
 
+    public static final Logger LOGGER = LoggerFactory.getLogger("BoatFly");
+    public static final String MOD_ID = "boatfly";
 
-	// The KeyBinding declaration and registration are commonly executed here statically
+    private static KeyBinding boatFlightKey;
+    private static KeyBinding increaseSpeedKey;
+    private static KeyBinding decreaseSpeedKey;
 
-	@Override
-	public void onInitializeClient() {
-		BoatFlight = KeyBindingHelper.registerKeyBinding(new KeyBinding("Boat Fly",  InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_B, "Boat Fly"));
-		BoatFlyOn = false;
-		BoatSpeedInc = KeyBindingHelper.registerKeyBinding(new KeyBinding("Increase Boat Speed",  InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_I, "Boat Fly"));
-		BoatSpeedDec = KeyBindingHelper.registerKeyBinding(new KeyBinding("Decrease Boat Speed",  InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_O, "Boat Fly"));
-		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-			if (client.isWindowFocused()) { // Ensure the window is focused before rendering
-				onRenderTick(client);
-			}
-		});
-		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-			dispatcher.register(CommandManager.literal("boatspeed")
-					.then(argument("value", FloatArgumentType.floatArg())
-							.executes(context -> {
-								final double value = Math.round((FloatArgumentType.getFloat(context, "value")) * 1000.0) / 1000.0;
-								changeSpeed(MinecraftClient.getInstance(), (float) value, false);
-								return (int) value;
-							})));
-		});
-		/*ClientTickEvents.END_CLIENT_TICK.register(client -> {
-			updatePlayerSpeed();
-		});*/
-	}
-	private void onRenderTick(MinecraftClient client) {
-		if (client.player != null) {
-			if (BoatFlight.wasPressed()) {
-				BoatFlyOn = !BoatFlyOn;
-				System.out.println(BoatFlyOn);
-				BoatSpeed = 1;
-				if (BoatFlyOn) {
-					client.player.sendMessage(Text.of("Boat Fly is now On and Boat Speed is Set to 8 blocks/s"), true);
-					changeSpeed(client, 8, true);
-				} else {
-					client.player.sendMessage(Text.of("Boat Fly is now Off"), true);
-				}
-			}
-			if (BoatSpeedDec.wasPressed()) {
-				if(boatVelocity != 0) {
-					changeSpeed(client, boatVelocity + -1, false);
-				}
+    private static boolean isBoatFlyEnabled = false;
+    private static double boatSpeedMultiplier = 1.0;
+    private static double currentBoatVelocity = 8.0;
 
-			}
-			if (BoatSpeedInc.wasPressed()) {
-				changeSpeed(client, boatVelocity + 1, false);
-			}
-			if (client.options.jumpKey.isPressed()) {
-				if (BoatFlyClient.BoatFlyOn) {
-					if (!client.player.hasVehicle())
-						return;
-					Entity vehicle = client.player.getVehicle();
-					assert vehicle != null;
-					Vec3d velocity = vehicle.getVelocity();
-					double motionY = client.options.jumpKey.isPressed() ? 0.3 : 0;
-					vehicle.setVelocity(new Vec3d(velocity.x, motionY, velocity.z));
-				}
+    private static final double DEFAULT_SPEED = 8.0;
+    private static final double SPEED_INCREMENT = 1.0;
+    private static final double SPEED_DECREMENT = -1.0;
+    private static final double JUMP_VELOCITY = 0.3;
+    private static final double MIN_SPEED = 0.0;
 
-			}
-			if (client.options.forwardKey.isPressed()) {
-				if (BoatFlyClient.BoatSpeed != 1) {
-					if (!client.player.hasVehicle())
-						return;
-					Entity vehicle = client.player.getVehicle();
-					assert vehicle != null;
-					Vec3d velocity = vehicle.getVelocity();
-					boat = new Vec3d(velocity.x * BoatSpeed, velocity.y, velocity.z * BoatSpeed);
-					vehicle.setVelocity(boat);
-					assert BoatFlyClient.client.player != null;
-				}
-			}
+    @Override
+    public void onInitializeClient() {
+        boatFlightKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key." + MOD_ID + ".toggle_fly", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_B, "category." + MOD_ID + ".main"));
+        increaseSpeedKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key." + MOD_ID + ".increase_speed", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_I, "category." + MOD_ID + ".main"));
+        decreaseSpeedKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key." + MOD_ID + ".decrease_speed", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_O, "category." + MOD_ID + ".main"));
 
-		}
+        ClientTickEvents.END_CLIENT_TICK.register(this::onClientTick);
 
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
+            LiteralArgumentBuilder<FabricClientCommandSource> command = ClientCommandManager.literal("boatspeed")
+                .then(ClientCommandManager.argument("speed", FloatArgumentType.floatArg((float) MIN_SPEED))
+                    .executes(context -> {
+                        float speedValue = FloatArgumentType.getFloat(context, "speed");
+                        changeSpeed(speedValue);
+                        context.getSource().sendFeedback(Text.translatable("message." + MOD_ID + ".speed_changed", String.format("%.2f", currentBoatVelocity)));
+                        return 1;
+                    }));
+            dispatcher.register(command);
+        });
+    }
 
-	}
-	public void changeSpeed(MinecraftClient client, double speed, boolean fly){
+    /**
+     * 在每個客戶端 tick 結束時調用此方法，處理所有邏輯。
+     * @param client MinecraftClient 實例
+     */
+    private void onClientTick(MinecraftClient client) {
 
-		BoatSpeed = multiplier(speed);
-		double scale = Math.pow(10, 5);
-		boatVelocity = Math.round(speed * scale) / scale;
-		double BoatSpeedRound = Math.round(BoatSpeed * scale) / scale;
-		System.out.println(BoatSpeedRound);
-		String StringBoatSpeed = Double.toString(speed);
-		assert client.player != null;
-		if(!fly) {
-			//BoatFlyOn = false;
-			client.player.sendMessage(Text.of("Your Boat Speed is now " + StringBoatSpeed + " blocks/s"), true);
-		}
-	}
-	/*private void updatePlayerSpeed() {
-		if(client.player != null) {
-			Vec3d playerPos = client.player.getPos();
-			double playerX = playerPos.x;
-			double playerZ = playerPos.z;
-			long currentTime = System.currentTimeMillis();
-			long timeElapsed = currentTime - lastCheckTime;
+        if (boatFlightKey.wasPressed()) {
+            isBoatFlyEnabled = !isBoatFlyEnabled;
+            if (isBoatFlyEnabled) {
+                changeSpeed(DEFAULT_SPEED);
+                if (client.player != null) {
+                    client.player.sendMessage(Text.translatable("message." + MOD_ID + ".fly_enabled", String.format("%.2f", currentBoatVelocity)), false);
+                }
+            } else {
+                if (client.player != null) {
+                    client.player.sendMessage(Text.translatable("message." + MOD_ID + ".fly_disabled"), false);
+                }
+            }
+        }
 
-			if (timeElapsed > 1000) { // Update speed every 100 milliseconds
-				double deltaX = playerX - lastPlayerX;
-				double deltaZ = playerZ - lastPlayerZ;
-				double distance = MathHelper.sqrt((float) (deltaX * deltaX + deltaZ * deltaZ));
-				playerSpeed = distance / (timeElapsed / 1000.0); // Blocks per second
-				lastPlayerX = playerX;
-				lastPlayerZ = playerZ;
-				lastCheckTime = currentTime;
+        if (!isBoatFlyEnabled) {
+            return;
+        }
 
-				// Send player speed to chat
-				client.player.sendMessage(Text.of(String.format("Speed: %.2f blocks/s", playerSpeed)), true);
-			}
-		}
-	}*/
-	private double multiplier(double velocity){
-		double finalMultiplier;
-		finalMultiplier = Math.pow((-5.33893*Math.pow(Math.log(velocity-8+11.9072),-3.31832)+1.26253),0.470998);
-		return finalMultiplier;
-	}
+        if (increaseSpeedKey.wasPressed()) {
+            changeSpeed(currentBoatVelocity + SPEED_INCREMENT);
+            if (client.player != null) {
+                client.player.sendMessage(Text.translatable("message." + MOD_ID + ".speed_changed", String.format("%.2f", currentBoatVelocity)), false);
+            }
+        }
+
+        if (decreaseSpeedKey.wasPressed()) {
+            if (currentBoatVelocity > MIN_SPEED) {
+                changeSpeed(currentBoatVelocity + SPEED_DECREMENT);
+                if (client.player != null) {
+                    client.player.sendMessage(Text.translatable("message." + MOD_ID + ".speed_changed", String.format("%.2f", currentBoatVelocity)), false);
+                }
+            }
+        }
+        
+        if (client.player == null || !client.player.hasVehicle()) {
+            return;
+        }
+        Entity vehicle = client.player.getVehicle();
+
+        if (client.options.jumpKey.isPressed()) {
+            Vec3d velocity = vehicle.getVelocity();
+            vehicle.setVelocity(velocity.x, JUMP_VELOCITY, velocity.z);
+        }
+
+        if (client.options.forwardKey.isPressed() && boatSpeedMultiplier != 1.0) {
+            Vec3d velocity = vehicle.getVelocity();
+            Vec3d newVelocity = new Vec3d(velocity.x * boatSpeedMultiplier, velocity.y, velocity.z * boatSpeedMultiplier);
+            vehicle.setVelocity(newVelocity);
+        }
+    }
+
+    /**
+     * 改變船的速度設定值，並計算相應的速度乘數。
+     * @param newSpeed 新的目標速度（單位：blocks/s）
+     */
+    private void changeSpeed(double newSpeed) {
+        currentBoatVelocity = Math.max(MIN_SPEED, newSpeed);
+        boatSpeedMultiplier = calculateMultiplier(currentBoatVelocity);
+        
+        LOGGER.info("Boat speed set to {} b/s, multiplier is {}.", String.format("%.2f", currentBoatVelocity), String.format("%.5f", boatSpeedMultiplier));
+    }
+
+    /**
+     * 根據目標速度計算一個內部乘數。
+     * 公式本身保持不變。
+     * @param velocity 目標速度
+     * @return 計算出的速度乘數
+     */
+    private double calculateMultiplier(double velocity) {
+        // f(v) = (-5.33893 * (ln(v - 8 + 11.9072))^(-3.31832) + 1.26253)^(0.470998)
+        if (velocity <= 0) return 0;
+        
+        double logInput = velocity - 8.0 + 11.9072;
+        if (logInput <= 0) return 1.0;
+        
+        double term1 = -5.33893 * Math.pow(Math.log(logInput), -3.31832);
+        double base = term1 + 1.26253;
+        if (base < 0) return 1.0;
+
+        return Math.pow(base, 0.470998);
+    }
 }

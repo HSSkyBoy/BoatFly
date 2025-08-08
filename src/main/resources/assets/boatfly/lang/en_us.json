@@ -1,0 +1,9 @@
+{
+  "category.boatfly.main": "Boat Fly",
+  "key.boatfly.toggle_fly": "Toggle Boat Fly",
+  "key.boatfly.increase_speed": "Increase Boat Speed",
+  "key.boatfly.decrease_speed": "Decrease Boat Speed",
+  "message.boatfly.fly_enabled": "Boat Fly is now ON. Speed set to %s blocks/s.",
+  "message.boatfly.fly_disabled": "Boat Fly is now OFF.",
+  "message.boatfly.speed_changed": "Boat speed set to %s blocks/s."
+}
