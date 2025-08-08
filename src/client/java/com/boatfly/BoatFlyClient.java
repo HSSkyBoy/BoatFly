@@ -128,7 +128,6 @@ public class BoatFlyClient implements ClientModInitializer {
 
     /**
      * 根據目標速度計算一個內部乘數。
-     * 公式本身保持不變。
      * @param velocity 目標速度
      * @return 計算出的速度乘數
      */
